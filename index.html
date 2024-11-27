@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tudor Optics - لعبة Spin</title>
+    <title>Tudor Optics - لعبة فرقعة البالونات</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            direction: rtl;
             text-align: center;
             background-color: #f2f2f2;
             padding-top: 50px;
@@ -18,125 +17,152 @@
             color: #333;
         }
 
-        #wheel {
-            width: 300px;
-            height: 300px;
+        #balloons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .balloon {
+            width: 80px;
+            height: 120px;
             border-radius: 50%;
-            background: conic-gradient(#f39c12 0deg 60deg, #e74c3c 60deg 120deg, #2ecc71 120deg 180deg, #3498db 180deg 240deg, #9b59b6 240deg 300deg, #f1c40f 300deg 360deg);
-            margin: 0 auto;
+            background-color: #f39c12;
+            margin: 10px;
+            cursor: pointer;
             position: relative;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
         }
 
-        #wheel::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: #333;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .balloon:hover {
+            background-color: #f1c40f;
         }
 
-        #spinButton {
+        #timer {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        #attempts {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        #result {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        #resetButton {
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
             font-size: 18px;
-            margin-top: 30px;
+            margin-top: 20px;
             border-radius: 5px;
         }
 
-        #spinButton:hover {
+        #resetButton:hover {
             background-color: #45a049;
-        }
-
-        #discount {
-            font-size: 24px;
-            margin-top: 20px;
-            color: #333;
-        }
-
-        #retryButton {
-            padding: 10px 20px;
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            margin-top: 20px;
-            border-radius: 5px;
-        }
-
-        #retryButton:hover {
-            background-color: #c0392b;
         }
     </style>
 </head>
 <body>
 
     <h1>Tudor Optics</h1>
-    <p>دور العجلة واحصل على خصم!</p>
-
-    <div id="wheel"></div>
-    <button id="spinButton" onclick="spinWheel()">دور العجلة</button>
-
-    <div id="discount"></div>
-    <button id="retryButton" style="display: none;" onclick="resetWheel()">إعادة المحاولة</button>
+    <p>فرقعة البالونات للحصول على خصم</p>
+    
+    <div id="balloons"></div>
+    <div id="timer"></div>
+    <div id="attempts"></div>
+    <div id="result"></div>
+    
+    <button id="resetButton" style="display: none;" onclick="resetGame()">إعادة تشغيل اللعبة</button>
 
     <script>
-        let wheel = document.getElementById('wheel');
-        let spinButton = document.getElementById('spinButton');
-        let discountText = document.getElementById('discount');
-        let retryButton = document.getElementById('retryButton');
+        const balloonsContainer = document.getElementById('balloons');
+        const timerElement = document.getElementById('timer');
+        const attemptsElement = document.getElementById('attempts');
+        const resultElement = document.getElementById('result');
+        const resetButton = document.getElementById('resetButton');
+        
+        let attempts = 2;
+        let timeLeft = 10;
+        let gameInterval;
+        let timerInterval;
 
-        let isSpinning = false;
-
-        function spinWheel() {
-            if (isSpinning) return;
-
-            // تفعيل الدوران
-            isSpinning = true;
-            spinButton.disabled = true;
-
-            // زاوية دوران عشوائية
-            let rotationDegree = Math.floor(Math.random() * 360) + 3600; // 3600 درجة على الأقل
-            let discount = getDiscount(rotationDegree);
-
-            // تدوير العجلة
-            wheel.style.transition = 'transform 5s ease-out';
-            wheel.style.transform = rotate(${rotationDegree}deg);
-
-            // بعد الانتهاء من الدوران، عرض الخصم
-            setTimeout(() => {
-                discountText.innerText = الخصم الذي حصلت عليه: ${discount}%;
-                retryButton.style.display = 'inline-block';
-                spinButton.disabled = false;
-                isSpinning = false;
-            }, 5000); // بعد 5 ثواني، يتم عرض الخصم
+        // إنشاء بالونات عشوائية
+        function createBalloons() {
+            const numberOfBalloons = 6;
+            balloonsContainer.innerHTML = '';
+            for (let i = 0; i < numberOfBalloons; i++) {
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon');
+                balloon.setAttribute('data-discount', getRandomDiscount() + '%');
+                balloon.addEventListener('click', popBalloon);
+                balloonsContainer.appendChild(balloon);
+            }
         }
 
-        // تحديد الخصم بناءً على زاوية الدوران
-        function getDiscount(rotationDegree) {
-            if (rotationDegree % 360 < 60) return 10;
-            if (rotationDegree % 360 < 120) return 20;
-            if (rotationDegree % 360 < 180) return 30;
-            if (rotationDegree % 360 < 240) return 40;
-            if (rotationDegree % 360 < 300) return 50;
-            return 60;
+        // الحصول على خصم عشوائي بين 10% و 30%
+        function getRandomDiscount() {
+            return Math.floor(Math.random() * 21) + 10; // من 10% إلى 30%
         }
 
-        // دالة لإعادة تعيين العجلة
-        function resetWheel() {
-            wheel.style.transition = 'none';
-            wheel.style.transform = 'rotate(0deg)';
-            discountText.innerText = '';
-            retryButton.style.display = 'none';
+        // وظيفة فرقعة البالون
+        function popBalloon(event) {
+            if (attempts <= 0) return;
+
+            const balloon = event.target;
+            const discount = balloon.getAttribute('data-discount');
+            balloon.style.backgroundColor = 'gray';
+            balloon.style.pointerEvents = 'none'; // عدم القدرة على الضغط على البالون بعد فرقعته
+
+            resultElement.innerText = لقد حصلت على خصم: ${discount};
+            attempts--;
+            attemptsElement.innerText = المحاولات المتبقية: ${attempts};
+
+            if (attempts <= 0) {
+                clearInterval(timerInterval);
+                timerElement.innerText = "انتهى الوقت!";
+                resetButton.style.display = 'inline-block';
+            }
         }
+
+        // بداية اللعبة
+        function startGame() {
+            attempts = 2;
+            timeLeft = 10;
+            attemptsElement.innerText = المحاولات المتبقية: ${attempts};
+            resultElement.innerText = '';
+            timerElement.innerText = الوقت المتبقي: ${timeLeft} ثواني;
+
+            createBalloons();
+
+            // عد تنازلي للوقت
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                timerElement.innerText = الوقت المتبقي: ${timeLeft} ثواني;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.innerText = "انتهى الوقت!";
+                    resetButton.style.display = 'inline-block';
+                }
+            }, 1000);
+        }
+
+        // إعادة تشغيل اللعبة
+        function resetGame() {
+            resetButton.style.display = 'none';
+            startGame();
+        }
+
+        // بدء اللعبة عند تحميل الصفحة
+        startGame();
     </script>
 
 </body>
