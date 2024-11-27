@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tudor Optics - لعبة فرقعة البالونات</title>
+    <title>Tudor Optics - لعبة بازل</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            direction: rtl;
             text-align: center;
             background-color: #f2f2f2;
             padding-top: 50px;
@@ -17,38 +18,24 @@
             color: #333;
         }
 
-        #balloons {
-            display: flex;
+        #puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
             justify-content: center;
             margin-top: 20px;
         }
 
-        .balloon {
-            width: 80px;
-            height: 120px;
-            border-radius: 50%;
-            background-color: #f39c12;
-            margin: 10px;
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #333;
+            background-size: 300px 300px;
             cursor: pointer;
-            position: relative;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
         }
 
-        .balloon:hover {
-            background-color: #f1c40f;
-        }
-
-        #timer {
-            font-size: 24px;
-            margin-top: 20px;
-        }
-
-        #attempts {
-            font-size: 24px;
-            margin-top: 10px;
-        }
-
-        #result {
+        #message {
             font-size: 24px;
             margin-top: 20px;
             color: #333;
@@ -73,96 +60,103 @@
 <body>
 
     <h1>Tudor Optics</h1>
-    <p>فرقعة البالونات للحصول على خصم</p>
+    <p>قم بترتيب قطع الصورة لتشكيل الصورة الكاملة</p>
     
-    <div id="balloons"></div>
-    <div id="timer"></div>
-    <div id="attempts"></div>
-    <div id="result"></div>
+    <div id="puzzle-container"></div>
+    <div id="message"></div>
     
-    <button id="resetButton" style="display: none;" onclick="resetGame()">إعادة تشغيل اللعبة</button>
+    <button id="resetButton" onclick="resetPuzzle()">إعادة تشغيل اللعبة</button>
 
     <script>
-        const balloonsContainer = document.getElementById('balloons');
-        const timerElement = document.getElementById('timer');
-        const attemptsElement = document.getElementById('attempts');
-        const resultElement = document.getElementById('result');
-        const resetButton = document.getElementById('resetButton');
-        
-        let attempts = 2;
-        let timeLeft = 10;
-        let gameInterval;
-        let timerInterval;
+        // إعداد الصورة الأصلية
+        const puzzleImage = "https://via.placeholder.com/300"; // يمكنك تغيير الرابط إلى الصورة الأصلية
+        const rows = 3; // عدد الصفوف
+        const cols = 3; // عدد الأعمدة
+        let pieces = [];
+        let puzzleContainer = document.getElementById('puzzle-container');
+        let messageElement = document.getElementById('message');
 
-        // إنشاء بالونات عشوائية
-        function createBalloons() {
-            const numberOfBalloons = 6;
-            balloonsContainer.innerHTML = '';
-            for (let i = 0; i < numberOfBalloons; i++) {
-                const balloon = document.createElement('div');
-                balloon.classList.add('balloon');
-                balloon.setAttribute('data-discount', getRandomDiscount() + '%');
-                balloon.addEventListener('click', popBalloon);
-                balloonsContainer.appendChild(balloon);
+        // خلط القطع عشوائيًا
+        function shufflePieces() {
+            let positions = [];
+            for (let i = 0; i < rows * cols; i++) {
+                positions.push(i);
+            }
+
+            positions = positions.sort(() => Math.random() - 0.5);
+            return positions;
+        }
+
+        // إنشاء القطع
+        function createPuzzle() {
+            pieces = [];
+            puzzleContainer.innerHTML = '';
+            let shuffledPositions = shufflePieces();
+            for (let i = 0; i < rows * cols; i++) {
+                let piece = document.createElement('div');
+                let row = Math.floor(i / cols);
+                let col = i % cols;
+                piece.classList.add('puzzle-piece');
+                piece.style.backgroundImage = url(${puzzleImage});
+                piece.style.backgroundPosition = -${col * 100}px -${row * 100}px;
+                piece.setAttribute('data-position', shuffledPositions[i]);
+                piece.addEventListener('click', () => handlePieceClick(piece));
+                puzzleContainer.appendChild(piece);
+                pieces.push(piece);
             }
         }
 
-        // الحصول على خصم عشوائي بين 10% و 30%
-        function getRandomDiscount() {
-            return Math.floor(Math.random() * 21) + 10; // من 10% إلى 30%
-        }
+        // التعامل مع فرقعة القطع
+        let emptyPiece = null;
 
-        // وظيفة فرقعة البالون
-        function popBalloon(event) {
-            if (attempts <= 0) return;
+        function handlePieceClick(piece) {
+            if (emptyPiece !== null) {
+                let emptyPosition = parseInt(emptyPiece.getAttribute('data-position'));
+                let piecePosition = parseInt(piece.getAttribute('data-position'));
 
-            const balloon = event.target;
-            const discount = balloon.getAttribute('data-discount');
-            balloon.style.backgroundColor = 'gray';
-            balloon.style.pointerEvents = 'none'; // عدم القدرة على الضغط على البالون بعد فرقعته
-
-            resultElement.innerText = لقد حصلت على خصم: ${discount};
-            attempts--;
-            attemptsElement.innerText = المحاولات المتبقية: ${attempts};
-
-            if (attempts <= 0) {
-                clearInterval(timerInterval);
-                timerElement.innerText = "انتهى الوقت!";
-                resetButton.style.display = 'inline-block';
-            }
-        }
-
-        // بداية اللعبة
-        function startGame() {
-            attempts = 2;
-            timeLeft = 10;
-            attemptsElement.innerText = المحاولات المتبقية: ${attempts};
-            resultElement.innerText = '';
-            timerElement.innerText = الوقت المتبقي: ${timeLeft} ثواني;
-
-            createBalloons();
-
-            // عد تنازلي للوقت
-            timerInterval = setInterval(function() {
-                timeLeft--;
-                timerElement.innerText = الوقت المتبقي: ${timeLeft} ثواني;
-
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    timerElement.innerText = "انتهى الوقت!";
-                    resetButton.style.display = 'inline-block';
+                if (isAdjacent(emptyPosition, piecePosition)) {
+                    swapPieces(piece, emptyPiece);
+                    if (isSolved()) {
+                        messageElement.innerText = 'تهانينا! لقد أكملت اللعبة!';
+                    }
                 }
-            }, 1000);
+            }
+        }
+
+        // تحقق إذا كانت القطع مجاورة
+        function isAdjacent(pos1, pos2) {
+            return Math.abs(pos1 - pos2) === 1 || Math.abs(pos1 - pos2) === rows;
+        }
+
+        // تبديل القطع
+        function swapPieces(piece1, piece2) {
+            let tempPosition = piece1.getAttribute('data-position');
+            piece1.setAttribute('data-position', piece2.getAttribute('data-position'));
+            piece2.setAttribute('data-position', tempPosition);
+
+            let tempBackground = piece1.style.backgroundPosition;
+            piece1.style.backgroundPosition = piece2.style.backgroundPosition;
+            piece2.style.backgroundPosition = tempBackground;
+        }
+
+        // تحقق إذا كانت اللعبة قد اكتملت
+        function isSolved() {
+            for (let i = 0; i < pieces.length; i++) {
+                if (parseInt(pieces[i].getAttribute('data-position')) !== i) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         // إعادة تشغيل اللعبة
-        function resetGame() {
-            resetButton.style.display = 'none';
-            startGame();
+        function resetPuzzle() {
+            createPuzzle();
+            messageElement.innerText = '';
         }
 
-        // بدء اللعبة عند تحميل الصفحة
-        startGame();
+        // بدء اللعبة
+        resetPuzzle();
     </script>
 
 </body>
