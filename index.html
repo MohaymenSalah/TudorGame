@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة فزورة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: center;
+            margin-top: 50px;
+            background-color: red; /* خلفية حمراء */
+            color: white;
+        }
+        .letter {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            margin: 10px;
+            background-color: #f2f2f2;
+            line-height: 50px;
+            text-align: center;
+            font-size: 24px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .success {
+            color: green;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        .failure {
+            color: red;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        .timer {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        #retryButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #retryButton:hover {
