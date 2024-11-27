@@ -89,28 +89,39 @@
     <button id="retryButton" style="display: none;" onclick="resetWheel()">إعادة المحاولة</button>
 
     <script>
-        function spinWheel() {
-            // إخفاء زر "دور العجلة" بعد الضغط عليه
-            document.getElementById('spinButton').style.display = 'none';
+        let wheel = document.getElementById('wheel');
+        let spinButton = document.getElementById('spinButton');
+        let discountText = document.getElementById('discount');
+        let retryButton = document.getElementById('retryButton');
 
-            // تحديد زاوية الدوران العشوائية
-            let rotationDegree = Math.floor(Math.random() * 360) + 3600; // دوران عشوائي من 3600 درجة وأكثر
+        let isSpinning = false;
+
+        function spinWheel() {
+            if (isSpinning) return;
+
+            // تفعيل الدوران
+            isSpinning = true;
+            spinButton.disabled = true;
+
+            // زاوية دوران عشوائية
+            let rotationDegree = Math.floor(Math.random() * 360) + 3600; // 3600 درجة على الأقل
             let discount = getDiscount(rotationDegree);
 
-            // تطبيق الدوران على العجلة
-            document.getElementById('wheel').style.transition = 'transform 5s ease-out';
-            document.getElementById('wheel').style.transform = rotate(${rotationDegree}deg);
+            // تدوير العجلة
+            wheel.style.transition = 'transform 5s ease-out';
+            wheel.style.transform = rotate(${rotationDegree}deg);
 
-            // عرض الخصم بعد مدة الدوران
+            // بعد الانتهاء من الدوران، عرض الخصم
             setTimeout(() => {
-                document.getElementById('discount').innerText = الخصم الذي حصلت عليه: ${discount}%;
-                document.getElementById('retryButton').style.display = 'inline-block';
-            }, 5000); // بعد 5 ثواني
+                discountText.innerText = الخصم الذي حصلت عليه: ${discount}%;
+                retryButton.style.display = 'inline-block';
+                spinButton.disabled = false;
+                isSpinning = false;
+            }, 5000); // بعد 5 ثواني، يتم عرض الخصم
         }
 
-        // دالة لتحديد الخصم بناءً على زاوية الدوران
+        // تحديد الخصم بناءً على زاوية الدوران
         function getDiscount(rotationDegree) {
-            // تحديد القطاعات الخاصة بالخصومات بناءً على زاوية الدوران
             if (rotationDegree % 360 < 60) return 10;
             if (rotationDegree % 360 < 120) return 20;
             if (rotationDegree % 360 < 180) return 30;
@@ -119,16 +130,12 @@
             return 60;
         }
 
-        // دالة لإعادة تعيين العجلة والخصم
+        // دالة لإعادة تعيين العجلة
         function resetWheel() {
-            // إعادة تعيين العجلة
-            document.getElementById('wheel').style.transition = 'none';
-            document.getElementById('wheel').style.transform = 'rotate(0deg)';
-
-            // إعادة إظهار زر "دور العجلة" وخصم جديد
-            document.getElementById('spinButton').style.display = 'inline-block';
-            document.getElementById('discount').innerText = '';
-            document.getElementById('retryButton').style.display = 'none';
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            discountText.innerText = '';
+            retryButton.style.display = 'none';
         }
     </script>
 
