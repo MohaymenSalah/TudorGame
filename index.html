@@ -3,53 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة فزورة</title>
+    <title>Tudor Optics - لعبة Spin</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             direction: rtl;
             text-align: center;
-            margin-top: 50px;
-            background-color: red; /* خلفية حمراء */
-            color: white;
-        }
-        .letter {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            margin: 10px;
             background-color: #f2f2f2;
-            line-height: 50px;
-            text-align: center;
-            font-size: 24px;
-            cursor: pointer;
-            border: 1px solid #ccc;
+            padding-top: 50px;
         }
-        .container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
+
+        h1 {
+            font-size: 36px;
+            color: #333;
         }
-        .success {
-            color: green;
-            font-size: 24px;
-            margin-top: 20px;
+
+        #wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: conic-gradient(#f39c12 0deg 60deg, #e74c3c 60deg 120deg, #2ecc71 120deg 180deg, #3498db 180deg 240deg, #9b59b6 240deg 300deg, #f1c40f 300deg 360deg);
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
         }
-        .failure {
-            color: red;
-            font-size: 24px;
-            margin-top: 20px;
+
+        #wheel::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
-        .timer {
-            font-size: 20px;
-            margin-top: 20px;
-        }
-        #retryButton {
-            margin-top: 20px;
+
+        #spinButton {
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
+            font-size: 18px;
+            margin-top: 30px;
+            border-radius: 5px;
         }
-        #retryButton:hover {
+
+        #spinButton:hover {
+            background-color: #45a049;
+        }
+
+        #discount {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        #retryButton {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        #retryButton:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tudor Optics</h1>
+    <p>دور العجلة واحصل على خصم!</p>
+
+    <div id="wheel"></div>
+    <button id="spinButton" onclick="spinWheel()">دور العجلة</button>
+
+    <div id="discount"></div>
+    <button id="retryButton" style="display: none;" onclick="resetWheel()">إعادة المحاولة</button>
+
+    <script>
+        function spinWheel() {
+            // إخفاء زر "دور العجلة" بعد الضغط عليه
+            document.getElementById('spinButton').style.display = 'none';
+
+            // تحديد زاوية الدوران العشوائية
+            let rotationDegree = Math.floor(Math.random() * 360) + 3600; // دوران عشوائي من 3600 درجة وأكثر
+            let discount = getDiscount(rotationDegree);
+
+            // تطبيق الدوران على العجلة
+            document.getElementById('wheel').style.transition = 'transform 5s ease-out';
+            document.getElementById('wheel').style.transform = rotate(${rotationDegree}deg);
+
+            // عرض الخصم بعد مدة الدوران
+            setTimeout(() => {
+                document.getElementById('discount').innerText = الخصم الذي حصلت عليه: ${discount}%;
+                document.getElementById('retryButton').style.display = 'inline-block';
+            }, 5000); // بعد 5 ثواني
+        }
+
+        // دالة لتحديد الخصم بناءً على زاوية الدوران
+        function getDiscount(rotationDegree) {
+            // تحديد القطاعات الخاصة بالخصومات بناءً على زاوية الدوران
+            if (rotationDegree % 360 < 60) return 10;
+            if (rotationDegree % 360 < 120) return 20;
+            if (rotationDegree % 360 < 180) return 30;
+            if (rotationDegree % 360 < 240) return 40;
+            if (rotationDegree % 360 < 300) return 50;
+            return 60;
+        }
+
+        // دالة لإعادة تعيين العجلة والخصم
+        function resetWheel() {
+            // إعادة تعيين العجلة
+            document.getElementById('wheel').style.transition = 'none';
+            document.getElementById('wheel').style.transform = 'rotate(0deg)';
+
+            // إعادة إظهار زر "دور العجلة" وخصم جديد
+            document.getElementById('spinButton').style.display = 'inline-block';
+            document.getElementById('discount').innerText = '';
+            document.getElementById('retryButton').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
